@@ -4,7 +4,7 @@ first_name VARCHAR(255) NOT NULL,
 last_name VARCHAR(255) NOT NULL,
 contact_info VARCHAR(255) NOT NULL,
 staff_role VARCHAR(255) NOT NULL,
-extra_caricular_role VARCHAR(255) DEFAULT NULL
+extra_curricular_role VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Student(
