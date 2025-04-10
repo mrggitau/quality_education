@@ -1,0 +1,149 @@
+-- ========================
+-- TABLE CREATION SECTION
+-- ========================
+
+CREATE TABLE Staff(
+    staff_id INT PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    contact_info VARCHAR(255) NOT NULL,
+    staff_role VARCHAR(255) NOT NULL,
+    extra_curricular_role VARCHAR(255) DEFAULT NULL
+);
+
+CREATE TABLE Student(
+    student_id INT PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    date_or_birth DATE,
+    gender VARCHAR(255) NOT NULL,
+    student_contact_info VARCHAR(255) NOT NULL,
+    guardian_name VARCHAR(255) NOT NULL,
+    guardian_contact VARCHAR(255) NOT NULL,
+    enrollment_date DATE
+);
+
+CREATE TABLE Teacher(
+    teacher_id INT PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    contact_info VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Course(
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(255) NOT NULL,
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES Teacher(teacher_id)
+);
+
+CREATE TABLE Grades(
+    grade VARCHAR(255) NOT NULL,
+    student_id INT,
+    course_id INT,
+    marks_obtained VARCHAR(255) NOT NULL,
+    PRIMARY KEY(student_id, course_id),
+    FOREIGN KEY(student_id) REFERENCES Student(student_id),
+    FOREIGN KEY(course_id) REFERENCES Course(course_id)
+);
+
+CREATE TABLE Attendance(
+    absence_percentage VARCHAR(255) NOT NULL,
+    student_id INT,
+    course_id INT,
+    teacher_id INT,
+    PRIMARY KEY(student_id, course_id, teacher_id),
+    FOREIGN KEY(student_id) REFERENCES Student(student_id),
+    FOREIGN KEY(course_id) REFERENCES Course(course_id),
+    FOREIGN KEY(teacher_id) REFERENCES Teacher(teacher_id)
+);
+
+CREATE TABLE Fees(
+    fee_status VARCHAR(255) NOT NULL,
+    student_id INT PRIMARY KEY,
+    amount_due DECIMAL(10,2) DEFAULT NULL,
+    amount_paid DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(student_id) REFERENCES Student(student_id)
+);
+
+-- ========================
+-- NAVIGATION QUERY SECTION
+-- ========================
+
+-- 1. Students with their grades and course names
+SELECT 
+    s.student_id,
+    s.first_name,
+    s.last_name,
+    c.course_name,
+    g.grade,
+    g.marks_obtained
+FROM 
+    Student s
+JOIN Grades g ON s.student_id = g.student_id
+JOIN Course c ON g.course_id = c.course_id;
+
+-- 2. Teachers with the courses they teach
+SELECT 
+    t.teacher_id,
+    t.first_name,
+    t.last_name,
+    c.course_name
+FROM 
+    Teacher t
+JOIN Course c ON t.teacher_id = c.teacher_id;
+
+-- 3. Students with their fee status and balance
+SELECT 
+    s.student_id,
+    s.first_name,
+    s.last_name,
+    f.fee_status,
+    f.amount_due,
+    f.amount_paid
+FROM 
+    Student s
+JOIN Fees f ON s.student_id = f.student_id;
+
+-- 4. Attendance details per course and teacher
+SELECT 
+    s.student_id,
+    s.first_name,
+    s.last_name,
+    c.course_name,
+    t.first_name AS teacher_first_name,
+    t.last_name AS teacher_last_name,
+    a.absence_percentage
+FROM 
+    Attendance a
+JOIN Student s ON a.student_id = s.student_id
+JOIN Course c ON a.course_id = c.course_id
+JOIN Teacher t ON a.teacher_id = t.teacher_id;
+
+-- 5. Which students are taught by which teachers
+SELECT 
+    DISTINCT s.student_id,
+    s.first_name,
+    s.last_name,
+    t.first_name AS teacher_first_name,
+    t.last_name AS teacher_last_name,
+    c.course_name
+FROM 
+    Student s
+JOIN Grades g ON s.student_id = g.student_id
+JOIN Course c ON g.course_id = c.course_id
+JOIN Teacher t ON c.teacher_id = t.teacher_id;
+
+-- 6. Students enrolled in each course with teacher info
+SELECT 
+    c.course_name,
+    t.first_name AS teacher_first_name,
+    t.last_name AS teacher_last_name,
+    s.student_id,
+    s.first_name,
+    s.last_name
+FROM 
+    Course c
+JOIN Teacher t ON c.teacher_id = t.teacher_id
+JOIN Grades g ON c.course_id = g.course_id
+JOIN Student s ON g.student_id = s.student_id;
