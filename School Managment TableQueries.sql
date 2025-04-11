@@ -16,7 +16,8 @@ gender VARCHAR(255) NOT NULL,
 student_contact_info  VARCHAR(255) NOT NULL,
 guardian_name VARCHAR(255) NOT NULL,
 guardian_contact VARCHAR(255) NOT NULL,
-enrollment_date DATE
+enrollment_date DATE,
+extra_curricular_activity VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Teacher(
