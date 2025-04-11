@@ -3,68 +3,97 @@
 -- ========================
 
 CREATE TABLE Staff(
-    staff_id INT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    contact_info VARCHAR(255) NOT NULL,
-    staff_role VARCHAR(255) NOT NULL,
-    extra_curricular_role VARCHAR(255) DEFAULT NULL
+staff_id int PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+contact_info VARCHAR(255) NOT NULL,
+staff_role VARCHAR(255) NOT NULL,
+extra_curricular_role VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Student(
-    student_id INT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    date_or_birth DATE,
-    gender VARCHAR(255) NOT NULL,
-    student_contact_info VARCHAR(255) NOT NULL,
-    guardian_name VARCHAR(255) NOT NULL,
-    guardian_contact VARCHAR(255) NOT NULL,
-    enrollment_date DATE
+Student_id int PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+date_of_birth DATE,
+gender VARCHAR(255) NOT NULL,
+student_contact_info  VARCHAR(255) NOT NULL,
+guardian_name VARCHAR(255) NOT NULL,
+guardian_contact VARCHAR(255) NOT NULL,
+enrollment_date DATE,
+extra_curricular_activity VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Teacher(
-    teacher_id INT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    contact_info VARCHAR(255) NOT NULL
+teacher_id int PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+contact_info VARCHAR(255) NOT NULL,
+extra_curricular_role VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Course(
-    course_id INT PRIMARY KEY,
-    course_name VARCHAR(255) NOT NULL,
-    teacher_id INT,
-    FOREIGN KEY (teacher_id) REFERENCES Teacher(teacher_id)
+course_id int PRIMARY KEY,
+course_name VARCHAR(255) NOT NULL,
+teacher_id INT,
+FOREIGN KEY(teacher_id) REFERENCES Teacher(teacher_id)
 );
 
 CREATE TABLE Grades(
-    grade VARCHAR(255) NOT NULL,
-    student_id INT,
-    course_id INT,
-    marks_obtained VARCHAR(255) NOT NULL,
-    PRIMARY KEY(student_id, course_id),
-    FOREIGN KEY(student_id) REFERENCES Student(student_id),
-    FOREIGN KEY(course_id) REFERENCES Course(course_id)
+grade VARCHAR(255) NOT NULL, --tracked yearly
+student_id INT,
+course_id INT,
+year INT,
+marks_obtained VARCHAR(255) NOT NULL,
+PRIMARY KEY(student_id,course_id,year),
+FOREIGN KEY(student_id) REFERENCES Student(student_id),
+FOREIGN KEY(course_id) REFERENCES Course(course_id)
 );
 
 CREATE TABLE Attendance(
-    absence_percentage VARCHAR(255) NOT NULL,
-    student_id INT,
-    course_id INT,
-    teacher_id INT,
-    PRIMARY KEY(student_id, course_id, teacher_id),
-    FOREIGN KEY(student_id) REFERENCES Student(student_id),
-    FOREIGN KEY(course_id) REFERENCES Course(course_id),
-    FOREIGN KEY(teacher_id) REFERENCES Teacher(teacher_id)
+absence_percentage VARCHAR(255) NOT NULL, -- tracked yearly
+student_id INT,
+course_id INT,
+teacher_id INT,
+PRIMARY KEY(student_id,course_id,teacher_id),
+FOREIGN KEY(student_id) REFERENCES Student(student_id),
+FOREIGN KEY(course_id) REFERENCES Course(course_id),
+FOREIGN KEY(teacher_id) REFERENCES Teacher(teacher_id)
 );
 
 CREATE TABLE Fees(
-    fee_status VARCHAR(255) NOT NULL,
-    student_id INT PRIMARY KEY,
-    amount_due DECIMAL(10,2) DEFAULT NULL,
-    amount_paid DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY(student_id) REFERENCES Student(student_id)
+fee_status  VARCHAR(255) NOT NULL,     -- tracked yearly
+student_id INT,
+year INT,
+amount_due DECIMAL(10,2) DEFAULT NULL,
+amount_paid DECIMAL(10,2) NOT NULL,
+PRIMARY KEY(student_id,year),
+FOREIGN KEY(student_id) REFERENCES Student(student_id)
 );
+
+CREATE TABLE Extracurricular_Activity (
+activity_id INT PRIMARY KEY,
+activity_name VARCHAR(255),
+description TEXT,
+teacher_id INT, --the patron in charge
+FOREIGN KEY (teacher_id) REFERENCES Teacher(teacher_id)
+);
+
+CREATE TABLE Scholarship_Donor (
+scholarship_donor_id INT PRIMARY KEY,
+scholarship_donor_name VARCHAR(255),
+description TEXT
+);
+
+CREATE TABLE Scholarship (
+scholarship_id INT PRIMARY KEY,
+scholarship_donor_id INT,
+student_id INT,
+eligibility_reason TEXT,
+FOREIGN KEY (scholarship_donor_id) REFERENCES Scholarship_Donor(scholarship_donor_id),
+FOREIGN KEY (student_id) REFERENCES Student(student_id)
+);
+
 
 -- ========================
 -- NAVIGATION QUERY SECTION
@@ -147,3 +176,23 @@ FROM
 JOIN Teacher t ON c.teacher_id = t.teacher_id
 JOIN Grades g ON c.course_id = g.course_id
 JOIN Student s ON g.student_id = s.student_id;
+
+-- 7. Students viable to receive scholarship
+SELECT 
+    s.student_id,
+    s.first_name,
+    s.last_name,
+    a.absence_percentage,
+    g.marks_obtained,
+    s.extra_curricular_activity
+FROM 
+    Student s
+JOIN Attendance a ON s.student_id = a.student_id
+JOIN Grades g ON s.student_id = g.student_id
+JOIN Course c ON g.course_id = c.course_id
+JOIN Teacher t ON c.teacher_id = t.teacher_id
+WHERE 
+    CAST(a.absence_percentage AS DECIMAL) < 30
+    AND CAST(g.marks_obtained AS DECIMAL) > 450
+    AND s.extra_curricular_activity IS NOT NULL;  -- Ensure student is involved in an extracurricular activity
+
