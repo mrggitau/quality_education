@@ -196,3 +196,15 @@ WHERE
     AND CAST(g.marks_obtained AS DECIMAL) > 450
     AND s.extra_curricular_activity IS NOT NULL;  -- Ensure student is involved in an extracurricular activity
 
+-- 8. View all students
+SELECT * FROM Student;
+
+-- 9. To insert a new record
+INSERT INTO Teacher (
+    teacher_id, first_name, last_name, contact_info, extra_curricular_role
+) VALUES (
+    561, 'Gracey', 'Kamande', '0789263562', 'Drama Club Patron'
+);
+
+
+
