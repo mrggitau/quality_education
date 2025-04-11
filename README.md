@@ -1,1 +1,1 @@
-# School Managment TableQueries.sql shows our entities' tables
+# "School Managment TableQueries.sql" shows our entities' tables
