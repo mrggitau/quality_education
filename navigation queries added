@@ -206,5 +206,19 @@ INSERT INTO Teacher (
     52222, 'Gracey', 'Kamande', '0789263562', 'Drama Club Patron'
 );
 
+-- 10. To show students progress
+SELECT 
+    s.student_id,
+    s.first_name,
+    s.last_name,
+    c.course_name,
+    g.grade,
+    g.marks_obtained
+FROM 
+    Grades g
+JOIN Student s ON g.student_id = s.student_id
+JOIN Course c ON g.course_id = c.course_id;
+
+
 
 
