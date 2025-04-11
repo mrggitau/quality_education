@@ -1,2 +1,1 @@
-# quality_education
-Relational database system for our Sustainable Development Goal
+# School Managment TableQueries.sql shows our entities' tables
