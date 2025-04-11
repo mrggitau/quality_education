@@ -203,7 +203,7 @@ SELECT * FROM Student;
 INSERT INTO Teacher (
     teacher_id, first_name, last_name, contact_info, extra_curricular_role
 ) VALUES (
-    561, 'Gracey', 'Kamande', '0789263562', 'Drama Club Patron'
+    52222, 'Gracey', 'Kamande', '0789263562', 'Drama Club Patron'
 );
 
 
